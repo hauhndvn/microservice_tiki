@@ -1,0 +1,17 @@
+./api_gateway/node_modules
+./api_gateway/dist
+
+./service_logistics/node_modules
+./service_logistics/dist
+
+./service_notify/node_modules
+./service_notify/dist
+
+./service_order/node_modules
+./service_order/dist
+
+./service_product/node_modules
+./service_product/dist
+
+./service_user/node_modules
+./service_user/dist

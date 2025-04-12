@@ -1,0 +1,37 @@
+version: "3"
+services:
+  api_gateway:
+    container_name: api_gateway
+    build: ./api_gateway
+    ports:
+      - 8080:8080
+    networks:
+      - hau
+  service_notify:
+    container_name: service_notify
+    build: ./service_notify
+    networks:
+      - hau
+  service_logistics:
+    container_name: service_logistics
+    build: ./service_logistics
+    networks:
+      - hau
+  service_order:
+    container_name: service_order
+    build: ./service_order
+    networks:
+      - hau
+  service_product:
+    container_name: service_product
+    build: ./service_product
+    networks:
+      - hau
+  service_user:
+    container_name: service_user
+    build: ./service_user
+    networks:
+      - hau
+networks:
+  hau:
+    external: true
