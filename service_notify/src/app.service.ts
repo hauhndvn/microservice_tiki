@@ -17,13 +17,13 @@ export class AppService {
       from: "hau.nguyenduc@gmail.com",
       to: email,
       subject: "Đăng ký thành công",
-      html: "<h1> Bạn đã đăng ký tài khoản Baemin thành công </h1>"
+      html: "<h1> Bạn đã đăng ký tài khoản Tiki thành công </h1>"
     }
     configMail.sendMail(infoMail, error => error);
   }
   sendMailOrder(data) {
     let { email } = data;
-    //gửi email thông báo đặt Food thành công
+    //gửi email thông báo đặt hàng thành công
     const configMail = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -41,7 +41,7 @@ export class AppService {
   }
   sendMailSuccess(data) {
     let { email } = data;
-    //gửi email thông báo đã giao Food thành công
+    //gửi email thông báo đã giao hàng thành công
     const configMail = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -59,7 +59,7 @@ export class AppService {
   }
   sendMailShopSuccess(data) {
     let { email } = data;
-    //gửi email thông báo đã giao Food thành công
+    //gửi email thông báo đã giao hàng thành công
     const configMail = nodemailer.createTransport({
       service: "gmail",
       auth: {

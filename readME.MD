@@ -10,7 +10,7 @@ jdbc_driver_class => "org.postgresql.Driver"
 jdbc_connection_string => "jdbc:postgresql://some-postgres:5432/baemin"
 jdbc_user => "postgres"
 jdbc_password => "1234"
-statement => "SELECT * FROM food"
+statement => "SELECT * FROM products"
 schedule => "\_ \* \* \* \*"
 }
 }

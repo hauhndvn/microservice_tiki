@@ -1,58 +1,33 @@
-import { Controller, Get, Inject, Param, Query } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache 
+  constructor(private readonly appService: AppService 
   ) {}
 
   @MessagePattern("get_all_product")
   async findAll(@Payload() data) {
-    let {page, limit, featured} = data;
-    let dataCache = await this.cacheManager.get("get_all_product_tiki");
-    //lần 2
-    if (dataCache){
-      return dataCache;
-    }
-    let dataGet = await this.appService.findAll(
-      Number(page),
-      Number(limit),
-      featured,
-    );
-    //lần 1
-    this.cacheManager.set("get_all_product_tiki", dataGet);
-    return dataGet;
+    // dùng phân trang
+    return await this.appService.findAll(data);
   }
 
   @MessagePattern("get_all_name_product")
-  async findAllFood(@Payload() data) {
-    let {page, limit, featured, name_food} = data
-    let dataCache = await this.cacheManager.get("get_all_name_product_tiki");
-    //lần 2
-    if (dataCache){
-      return dataCache;
-    }
-    let dataGet = await this.appService.findAll(
-      Number(page),
-      Number(limit),
-      featured,
-      name_food,
-    );
-    //lần 1
-    this.cacheManager.set("get_all_name_product_tiki", dataGet);
-    return dataGet;
+  async findAllProduct(@Payload() data) {
+    // dùng Elasticsearch 
+    return await this.appService.findAllName(data);
   }
+
   @MessagePattern("save_product")
   async saveProduct(@Payload() data){
     return this.appService.saveProduct(data);
   }
-  @MessagePattern("get_product")
-  async findFood(@Payload() data:string) {
-     return this.appService.findFood(data);
+  @MessagePattern("get_product_title")
+  async findProduct(@Payload() data:string) {
+    //dùng cache
+     return this.appService.findProduct(data);
    }
   @MessagePattern("save_shop")
   async saveShop(@Payload() data) {

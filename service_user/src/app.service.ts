@@ -3,6 +3,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ClientProxy } from '@nestjs/microservices';
 import { RpcException } from '@nestjs/microservices';
+import { authorize } from 'passport';
 
 @Injectable()
 export class AppService {
@@ -12,33 +13,47 @@ export class AppService {
   ){}
 
   async signUp(model){
-    let { accountName, phone, address, email, password } = model;
-   //lỗi 400 || 500 => email, phone, accountName đã tồn tại
-   let checkAccount = await this.prismaService.customer.findFirst({
-      where: {
-        OR: [
-          { email },
-          { phone },
-          { accountName }
-        ]
+    try {
+      let { accountName, phone, address, email, password } = model;
+  
+      // Kiểm tra email, phone, accountName đã tồn tại
+      let checkAccount = await this.prismaService.customers.findFirst({
+        where: {
+          OR: [
+            { email },
+            { phone },
+            { accountName }
+          ]
+        }
+      });
+  
+      // Nếu tìm thấy trả về lỗi 400
+      if (checkAccount) {
+        throw new RpcException('Email/Phone/Username đã tồn tại');
       }
-    });
-    // Nếu tìm thấy email, phone, accountName trả về lỗi 400
-    if (checkAccount) {
-      throw new RpcException('Email/Phone/Username đã tồn tại');
-    };
-    
-    // nếu email và password đúng, lưu vào database
-    await this.prismaService.customer.create({
-      data: model
-    })
-    
-    //gửi email thông báo đăng ký thành công
-    this.notifyService.emit("send_mail_signUp_success", {email})
-
-    return {
-      message: "Đăng ký thành công",
-    };
+  
+      // Lưu vào database
+      await this.prismaService.customers.create({
+        data: model
+      });
+  
+      // Gửi email thông báo đăng ký thành công
+      this.notifyService.emit("send_mail_signUp_success", { email });
+  
+      return {
+        message: "Đăng ký thành công",
+      };
+  
+    } catch (error) {
+      console.error('Lỗi signUp:', error);
+  
+      // Nếu là RpcException rồi thì giữ nguyên, còn lỗi khác thì bọc lại
+      if (error instanceof RpcException) {
+        throw error;
+      } else {
+        throw new RpcException('Đăng ký thất bại');
+      }
+    }
   }
   async login(model){
     try {
@@ -46,7 +61,7 @@ export class AppService {
       // console.log(username,"---",password);
       
       //lỗi 400 || 500 => email, phone, accountName sai
-      let checkAccount = await this.prismaService.customer.findFirst({
+      let checkAccount = await this.prismaService.customers.findFirst({
         where: {
           OR: [
             { email: username },
@@ -59,12 +74,22 @@ export class AppService {
       
       // Nếu không tìm thấy email, trả về lỗi 400
       if (!checkAccount) {
-        throw new RpcException('Email/Phone/Username không tồn tại');
+        throw new RpcException(
+          {
+            statusCode: 400,
+            message: 'Email/Phone/Username không tồn tại',
+          }
+          );
     }
     
     // Kiểm tra mật khẩu
     if (checkAccount.password !== password) {
-        throw new RpcException('Mật khẩu không đúng');
+        throw new RpcException(
+          {
+            statusCode: 400,
+            message: 'Mật khẩu không đúng',
+          }
+          );
     }
       // nếu email và password đúng, tạo token
       //ở Express phải khai báo 3 tham số:
@@ -82,14 +107,14 @@ export class AppService {
         // console.log(token);
         return {
           message: "Đăng nhập thành công",
-          token: token
+          Authorization: `Bearer ${token}`
         };
     } catch (error) {
         console.error("Lỗi đăng nhập:", error);
-        throw new RpcException('Đã có lỗi xảy ra');
+        if (error instanceof RpcException) {
+          return error.getError();  // <-- trả lại đúng object bạn throw
+        }
       }
-    // Trả về token
-    
   }
   
 

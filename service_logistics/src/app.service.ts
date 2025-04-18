@@ -11,7 +11,12 @@ export class AppService {
   async saveLogistics(model) {
     
     const { email, ...newData } = model;
-    
+      newData.status1= true;
+      newData.status2= true;
+      newData.status3= true;
+      newData.status4= true;
+      newData.status5= true;
+      newData.status6= true;
       await this.prismaService.status_Order.create({
         data: newData
       });
