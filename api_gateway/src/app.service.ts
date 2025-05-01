@@ -145,25 +145,31 @@ export class AppService {
         page: string,
         limit: string,
         isTopDeal?: string,
+        category_id?: string
     ){
-      let productAllData = await lastValueFrom(this.productService.send("get_all_product", {page, limit, isTopDeal}));
+      let productAllData = await lastValueFrom(this.productService.send("get_all_product", {page, limit, isTopDeal, category_id }));
       return productAllData;
     }
-    async getAllNameProduct(
+    async getAllNameProductShop(
         isTopDeal?: string,
         title?: string,
       ){    
-        let productAllNameProduct = await lastValueFrom(this.productService.send("get_all_name_product", {isTopDeal, title}));
-        return productAllNameProduct;
+        let productAllNameProductShop = await lastValueFrom(this.productService.send("get_all_name_product_shop", {isTopDeal, title}));
+        return productAllNameProductShop;
       }
      async getProduct(title: string) {
         //gọi đến service product để lấy data
         let productData = await lastValueFrom(this.productService.send("get_product_title", title));
         return productData;
       }
+    async getProductByID(id: string) {
+      //gọi đến service product để lấy data
+      let productData = await lastValueFrom(this.productService.send("get_product_id", id));
+      return productData;
+    }
     async findShop(
       shop_id: number, 
-      official: string)
+      official?: string)
     {
       let shopData = await lastValueFrom(this.productService.send("get_shop", {shop_id, official}));
       return shopData;
@@ -185,6 +191,16 @@ export class AppService {
       let userData = await lastValueFrom(this.userService.send("post_user", body));
       return userData;
     }
+    async logout(customer_id){  
+      let userLogout = await lastValueFrom(this.userService.send("logout_user",{customer_id}));
+      return userLogout;
+    }
+  //--------------------------------------------
+  async loginShop(body){
+    let shopData = await lastValueFrom(this.userService.send("post_shop", body));
+    return shopData;
+  }
+  //--------------------------------------------
     async order(info){
       let dataOrder = await lastValueFrom(this.orderService.send("save-order", info));
       return dataOrder;

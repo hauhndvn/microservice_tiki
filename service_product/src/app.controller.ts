@@ -14,10 +14,10 @@ export class AppController {
     return await this.appService.findAll(data);
   }
 
-  @MessagePattern("get_all_name_product")
+  @MessagePattern("get_all_name_product_shop")
   async findAllProduct(@Payload() data) {
     // dùng Elasticsearch 
-    return await this.appService.findAllName(data);
+    return await this.appService.findAllNameProductShop(data);
   }
 
   @MessagePattern("save_product")
@@ -25,10 +25,16 @@ export class AppController {
     return this.appService.saveProduct(data);
   }
   @MessagePattern("get_product_title")
-  async findProduct(@Payload() data:string) {
-    //dùng cache
-     return this.appService.findProduct(data);
+  async getProduct(@Payload() data:string) {
+     return this.appService.getProduct(data);
    }
+  @MessagePattern("get_product_id")
+  async getProductByID(@Payload() data){
+    // console.log("data");
+    // console.log(data);
+    
+    return this.appService.getProductByID(data);
+  }
   @MessagePattern("save_shop")
   async saveShop(@Payload() data) {
     return this.appService.saveShop(data);

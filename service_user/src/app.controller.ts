@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ClientProxy, MessagePattern, Payload } from '@nestjs/microservices';
+import { ClientProxy, EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
@@ -18,5 +18,14 @@ export class AppController {
     
     return await this.appService.login(data);
   }
-  
+
+  @MessagePattern("logout_user")
+  async logout(@Payload() data){
+    return await this.appService.logout(data);
+  }
+
+  @MessagePattern("post_shop")
+  async loginShop(@Payload() data){
+    return await this.appService.loginShop(data);
+  }
 }

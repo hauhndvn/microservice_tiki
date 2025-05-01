@@ -30,23 +30,6 @@ export class SaveShopDto{
     @ApiProperty({ name: "email", type: String, default: "", description: "Địa chỉ email"})    email: string;
     @ApiProperty({ name: "phone", type: String, default: "", description: "Số điện thoại"})    phone: string;
 }
-export class GetProductQueryDto{
-  @ApiPropertyOptional({ default: '1', description: 'Page number' })
-  page?: string;
-
-  @ApiPropertyOptional({ default: '5', description: 'Limit per page' })
-  limit?: string;
-
-  @ApiPropertyOptional({ default: 'true', description: 'Filter top deal products' })
-  isTopDeal?: string;
-}
-export class GetProductTitleQueryDto{
-    @ApiProperty({ default: '', description: 'Tiêu đề sản phẩm đầy đủ' }) //name: "title", type: String, 
-    title: string;
-
-  @ApiPropertyOptional({ default: 'true', description: 'Filter top deal products' })
-  isTopDeal?: string;
-}
 export class SaveCustomerDto{
   @ApiProperty({name: "accountName", type: String, default: "", description: "Tên đăng nhập"})    accountName: string;
   @ApiProperty({name: "name", type: String, default: "", description: "Tên người dùng", example:"Hào"})    name: string;
@@ -56,8 +39,32 @@ export class SaveCustomerDto{
   @ApiProperty({name: "phone", type: String, default: "", description: "phone"})    phone: string;
   @ApiProperty({name: "address", type: String, default: "", description: "address"})    address: string;
 }
+export class GetProductQueryDto{
+  @ApiPropertyOptional({ default: '1', description: 'Page number' })
+  page?: string;
+
+  @ApiPropertyOptional({ default: '5', description: 'Limit per page' })
+  limit?: string;
+
+  @ApiPropertyOptional({ default: 'true', description: 'Filter top deal products' })
+  isTopDeal?: string;
+
+  @ApiPropertyOptional({ description: 'Filter products by category_id' })
+  category_id?: string;
+}
+export class GetProductTitleQueryDto{
+    @ApiProperty({ default: '', description: 'Tiêu đề sản phẩm đầy đủ' }) //name: "title", type: String, 
+    title: string;
+
+  @ApiPropertyOptional({ default: 'true', description: 'Filter top deal products' })
+  isTopDeal?: string;
+}
 export class LoginCustomerDto{
   @ApiProperty({name: "username", type: String, default: "", description: "Tên đăng nhập/Sđt/Email"})    username: string;
+  @ApiProperty({name: "password", type: String, default: "", description: "password", format: "password"})    password: string;
+}
+export class LoginShopDto{
+  @ApiProperty({name: "email", type: String, default: "", description: "Email"})    username: string;
   @ApiProperty({name: "password", type: String, default: "", description: "password", format: "password"})    password: string;
 }
 export class OrderItemDto {

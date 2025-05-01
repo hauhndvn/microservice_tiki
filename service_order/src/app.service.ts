@@ -65,7 +65,10 @@ export class AppService {
   
         await this.prismaService.products.update({
           where: { product_id: item.product_id },
-          data: { inventory: { decrement: item.qty } },
+          data: { 
+            inventory: { decrement: item.qty },
+            sold: {increment: item.qty}
+          },
         });
       });
   

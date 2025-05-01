@@ -19,19 +19,13 @@ export class AppService {
 
   async findAll(data) {
         try {
-          const { page, limit, isTopDeal } = data;
-          let dataCache = await this.cacheManager.get("get_all_product_tiki");
-      
-          // Nếu có cache → trả về luôn (lần 2)
-          if (dataCache) {
-            return dataCache;
-          }
-          
-          // Nếu chưa có cache → lấy data
+          const { page, limit, isTopDeal, category_id } = data;
+          // console.log(data);
           
             // Chuyển đổi dữ liệu query từ string sang kiểu thích hợp
             const currentPage = Number(page) || 1;
             const pageSize = Number(limit) || 10;
+            const currentCategory_id = Number(category_id);
             const skip = (currentPage - 1) * pageSize;
         
             // Tạo điều kiện truy vấn với Prisma
@@ -40,42 +34,78 @@ export class AppService {
             if (isTopDeal !== undefined) {
               where.isTopDeal = isTopDeal === 'true'; // Chuyển thành boolean
             }
-        
+            //bổ sung currentCategory và parentCategory (nếu có)
+            if (currentCategory_id) {
+              // Truy vấn danh mục để lấy parent_id
+              const category = await this.prismaService.categories.findUnique({
+                where: { category_id: currentCategory_id },
+                select: { parent_id: true },
+              });
+            
+              // Tạo danh sách category_id bao gồm danh mục cha và các danh mục con
+              const categoryIds = [];
+              if (category?.parent_id) {
+                categoryIds.push(category.parent_id);
+                //bổ sung các ChildCategory trong cùng parent_id
+                const categoryOthers = await this.prismaService.categories.findMany({
+                  where: { parent_id: category.parent_id },
+                  select: { category_id: true },
+                });
+                
+                if (categoryOthers) {
+                  categoryOthers.forEach((item)=>{
+                    categoryIds.push(item.category_id);
+                  })
+                }
+              }
+              // Cập nhật điều kiện where để lấy sản phẩm thuộc các category_id
+              where.category_id = {
+                in: categoryIds,
+              };
+            }
             // Truy vấn danh sách sản phẩm, lấy toàn bộ trường của bảng products
             const products = await this.prismaService.products.findMany({
               where,
-              select: {
-                product_id: true,
-                image: true,
-                name: true ,
-                title: true ,
-                price: true ,
-                star: true ,
-                isTopDeal: true ,
-                isAuthentic: true ,
-                sale_percent: true ,
-                shipping_type: true ,
-                shipping_date: true ,
-                isGlobal: true ,
-                madeIn: true,
-                shop_id: true,
-                category_id: true,
-                // shops: {
-                //   select: {
-                //     logo: true, // Lấy thêm {gì thì bổ sung sau} từ bảng shops
-                //   },
-                // },
-              },
+              // select: {
+              //   product_id: true,
+              //   image: true,
+              //   name: true ,
+              //   title: true ,
+              //   price: true ,
+              //   star: true ,
+              //   isTopDeal: true ,
+              //   isAuthentic: true ,
+              //   sale_percent: true ,
+              //   shipping_type: true ,
+              //   shipping_date: true ,
+              //   isGlobal: true ,
+              //   madeIn: true,
+              //   shop_id: true,
+              //   category_id: true,
+              //   // shops: {
+              //   //   select: {
+              //   //     shop_name: true,
+              //   //     star: true,
+              //   //     official: true,
+              //   //     logo: true, // Lấy thêm {gì thì bổ sung sau} từ bảng shops
+              //   //   },
+              //   // },
+              // },
               orderBy: { product_id: 'desc' },
               skip,
               take: pageSize,
             });
         
+            
+
             // Định dạng dữ liệu đầu ra
             // const formattedProducts = products.map((product) => ({
-              // ...products, // Giữ nguyên toàn bộ thông tin của product
-              // logo: product.shops.logo, // Thêm logo vào kết quả
-              // shops: undefined, // Xóa key `shops` thừa trong dữ liệu trả về
+            //   ...product, // Giữ nguyên toàn bộ thông tin của product
+            //   logo: product.shops.logo, // Thêm logo vào kết quả
+            //   shop_name: product.shops.shop_name, 
+            //   starShop: product.shops.star,
+            //   officialShop: product.shops.official,
+            //   shops: undefined, // Xóa key `shops` thừa trong dữ liệu trả về
             // }));
         
             // Gọi PaginationService để lấy thông tin phân trang
@@ -93,34 +123,32 @@ export class AppService {
                 limit: pageSize,
               },
               data: {
-                docs: products,
+                docs: 
                 // formattedProducts,
+                products,
                 pages: paginationMeta,
               },
             };
           
-          // --------------
-          // Lưu vào cache (lần 1)
-          await this.cacheManager.set("get_all_product_tiki", dataGet);
-      
           return dataGet;
+
         } catch (error) {
           console.error("Error in findAll:", error);
           throw new Error("Đã xảy ra lỗi khi lấy danh sách sản phẩm.");
         }
   }
-  async findAllName(data) {
-    let { isTopDeal, title} = data
+  async findAllNameProductShop(data) {
+    let { isTopDeal, title} = data;//tìm theo cả title (Products) và shop_name (Shops)
     // Xây dựng query động
     let mustConditions: any[] = [];
+    let shouldConditions: any[] = [];
 
-    // Nếu có truyền title
+    // Nếu có truyền title, tìm theo title hoặc shop_name
     if (title) {
-      mustConditions.push({
-        match: {
-          title: title
-        }
-      });
+      shouldConditions.push(
+        { match: { title: title } },
+        { match: { shop_name: title } } // tên field trong elastic phải có 'shop_name'
+      );
     }
 
     // Nếu có truyền isTopDeal
@@ -137,7 +165,9 @@ export class AppService {
         index: "tiki-product-index",
         query: {
           bool: {
-            must: mustConditions
+            must: mustConditions,
+            should: shouldConditions,
+            minimum_should_match: shouldConditions.length > 0 ? 1 : 0,
           }
         }
       });
@@ -218,7 +248,7 @@ export class AppService {
     }
 
     // Thực hiện truy vấn trong Prisma
-    const shops = await this.prismaService.shops.findMany({
+    const shops = await this.prismaService.shops.findFirst({
         where: query,
     });
 
@@ -228,21 +258,27 @@ export class AppService {
             shop_id,
             official: official !== undefined ? query.official : undefined,
         },
-        data: {
-            docs: shops,
-        },
+        data: shops,
     };
 }
 
+// ít thay đổi nhất --> lưu cache
 async findCategory(data: { category_id: number }) {
   const { category_id } = data;
-  const query: any = { category_id };
 
-  // Thực hiện truy vấn trong Prisma
-  const categories = await this.prismaService.categories.findMany({
-      where: query, // Áp dụng bộ lọc category_id và featured (nếu có)
-  });
-
+  let dataCache = await this.cacheManager.get("get_all_categories_tiki");
+    // Nếu có cache → trả về luôn (lần 2)
+    if (dataCache) {
+      return dataCache;
+    }
+    // Nếu chưa có cache → lấy data
+    const query: any = { category_id };
+    const categories = await this.prismaService.categories.findMany({
+        where: query, // Áp dụng bộ lọc category_id và featured (nếu có)
+    });
+    // Lưu vào cache (lần 1)
+    await this.cacheManager.set("get_all_categories_tiki", categories);
+      
   return {
       status: 'success',
       filters: {
@@ -254,12 +290,7 @@ async findCategory(data: { category_id: number }) {
   };
 }
 
-async findProduct(title: string) {
-  let dataCache = await this.cacheManager.get(`get_title_product_${title}`);
-  //lần 2
-  if (dataCache){
-    return dataCache;
-  }
+async getProduct(title: string) {
     let dataGet = await this.prismaService.products.findMany({
       where:{
         title:{
@@ -268,9 +299,49 @@ async findProduct(title: string) {
         }
       } 
     })
-    // lần 1
-    this.cacheManager.set(`get_title_product_${title}`, dataGet);
     return dataGet;
-  }
-
+}
+async getProductByID(id: string){
+  let id_num = parseInt(id);
+  let dataGet = await this.prismaService.products.findUnique({
+    where:{
+      product_id: id_num,
+    },
+    // select: {
+    //   product_id: true,
+    //   image: true,
+    //   name: true ,
+    //   title: true ,
+    //   price: true ,
+    //   star: true ,
+    //   isTopDeal: true ,
+    //   isAuthentic: true ,
+    //   sale_percent: true ,
+    //   shipping_type: true ,
+    //   shipping_date: true ,
+    //   isGlobal: true ,
+    //   madeIn: true,
+    //   shop_id: true,
+    //   category_id: true,
+      // shops: {
+      //   select: {
+      //     shop_name: true,
+      //     star: true,
+      //     official: true,
+      //     logo: true,
+      //   },
+      // },
+    // },
+  });
+  // const formattedProduct = {
+  //   ...dataGet, // Giữ nguyên toàn bộ thông tin của product
+  //   logo: dataGet.shops.logo, // Thêm logo vào kết quả
+  //   shop_name: dataGet.shops.shop_name, 
+  //   starShop: dataGet.shops.star,
+  //   officialShop: dataGet.shops.official,
+  //   shops: undefined, // Xóa key `shops` thừa trong dữ liệu trả về
+  // };
+  return dataGet
+  // formattedProduct;
+}
 }

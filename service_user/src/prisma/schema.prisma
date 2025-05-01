@@ -86,6 +86,7 @@ model shops {
   official  Boolean
   email     String     @db.VarChar(255)
   phone     String     @db.VarChar(25)
+  password  String     @default("1234") @db.VarChar(255)
   products  products[]
 }
 

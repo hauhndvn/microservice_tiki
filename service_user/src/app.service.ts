@@ -51,13 +51,13 @@ export class AppService {
       if (error instanceof RpcException) {
         throw error;
       } else {
-        throw new RpcException('Đăng ký thất bại');
+        throw new RpcException('Đăng ký customer thất bại');
       }
     }
   }
   async login(model){
     try {
-      let { username, password } = model;
+      let { username } = model;
       // console.log(username,"---",password);
       
       //lỗi 400 || 500 => email, phone, accountName sai
@@ -83,7 +83,7 @@ export class AppService {
     }
     
     // Kiểm tra mật khẩu
-    if (checkAccount.password !== password) {
+    if (checkAccount.password !== model.password) {
         throw new RpcException(
           {
             statusCode: 400,
@@ -105,19 +105,81 @@ export class AppService {
           secret: "BI_MAT"
         });
         // console.log(token);
+        const { password, ...others} = checkAccount;
         return {
-          message: "Đăng nhập thành công",
+          message: "Đăng nhập customer thành công",
+          customer: others,
           Authorization: `Bearer ${token}`
         };
     } catch (error) {
         console.error("Lỗi đăng nhập:", error);
-        if (error instanceof RpcException) {
-          return error.getError();  // <-- trả lại đúng object bạn throw
-        }
+        // if (error instanceof RpcException) {
+        //   return error.getError();  // <-- trả lại đúng object bạn throw
+        // }
+        // Nếu là RpcException rồi thì giữ nguyên, còn lỗi khác thì bọc lại (cách này mới chuẩn)
+      if (error instanceof RpcException) {
+        throw error;
+      } else {
+        throw new RpcException('Đăng nhập customer thất bại');
+      }
       }
   }
+  async logout(data: { customer_id: string }){
+    let { customer_id } = data;
+    return {
+      message: `Customer ${customer_id} đăng xuất thành công`,
+      Authorization: ""
+    };
+  }
+//-------------------------------------------------
+async loginShop(data){
+  let { email, password } = data;
+  let checkAccount = await this.prismaService.shops.findFirst({
+    where: { email }
+  });
+  // console.log(checkAccount);
   
+  // Nếu không tìm thấy email, trả về lỗi 400
+  if (!checkAccount) {
+    throw new RpcException(
+      {
+        statusCode: 400,
+        message: 'Email không tồn tại',
+      }
+      );
+}
 
+// Kiểm tra mật khẩu
+if (checkAccount.password !== password) {
+    throw new RpcException(
+      {
+        statusCode: 400,
+        message: 'Mật khẩu không đúng',
+      }
+      );
+}
+  let token = await this.jwtService.signAsync(
+    { email: checkAccount.email },
+    { expiresIn: "5d",        
+      algorithm: "HS256",
+      secret: "BI_MAT"
+    });
+    return {
+      message: "Đăng nhập shops thành công",
+      Authorization: `Bearer ${token}`
+    };
+} catch (error) {
+    console.error("Lỗi đăng nhập:", error);
+    // if (error instanceof RpcException) {
+    //   return error.getError();  // <-- trả lại đúng object bạn throw
+    // }
+    if (error instanceof RpcException) {
+      throw error;
+    } else {
+      throw new RpcException('Đăng nhập shop thất bại');
+    }
+  }
+//-------------------------------------------------
   getHello(): string {
     return 'Hello World!';
   }

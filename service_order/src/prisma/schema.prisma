@@ -72,6 +72,7 @@ model products {
   shop_id       Int
   category_id   Int
   inventory     Int          @default(0) @db.SmallInt
+  sold          Int?         @default(0) @db.SmallInt
   orderItems    orderItems[]
   categories    categories   @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: NoAction)
   shops         shops        @relation(fields: [shop_id], references: [shop_id], onDelete: Cascade, onUpdate: NoAction)
@@ -86,6 +87,7 @@ model shops {
   official  Boolean
   email     String     @db.VarChar(255)
   phone     String     @db.VarChar(25)
+  password  String     @default("1234") @db.VarChar(255)
   products  products[]
 }
 
