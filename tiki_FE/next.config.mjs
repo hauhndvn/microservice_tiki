@@ -8,11 +8,11 @@ const nextConfig = {
     },
   },
   images: {
-    domains: ['localhost'],
+    domains: ['api_gateway'],
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: 'api_gateway',
         port: '8080', // thêm port nếu server bạn chạy cổng 8080
         pathname: '/public/images/**',
       },

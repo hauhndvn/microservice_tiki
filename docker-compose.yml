@@ -32,6 +32,13 @@ services:
     build: ./service_user
     networks:
       - hau
+  tiki_fe:
+    container_name: tiki_fe
+    build: ./tiki_fe
+    ports:
+      - "3000:3000"
+    networks:
+      - hau
 networks:
   hau:
     external: true
