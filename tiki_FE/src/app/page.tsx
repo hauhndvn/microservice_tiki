@@ -153,6 +153,27 @@ export default function Home() {
     };
   });
   
+  type PropsTypeListBrand = {
+    image: string;
+  }[];
+  
+  const productProps_ListHotBrand: PropsTypeListBrand = [];
+  const productProps_ListFlashSale: PropsTypeListBrand = [];
+  
+  products.forEach((item) => {
+    const webpImg = item.image.find(itemImg => itemImg.endsWith('.webp'));
+    const image = webpImg ? `${BASE_URL}/public/images/products/${webpImg}` : undefined;
+  
+    if (!image) return; // bỏ qua nếu không có ảnh
+  
+    if (item.star > 4) {
+      productProps_ListHotBrand.push({ image });
+    }
+  
+    if (item.sale_percent > 25) {
+      productProps_ListFlashSale.push({ image });
+    }
+  });
   return (
     <>
       
@@ -220,32 +241,6 @@ export default function Home() {
           </div>
         </div>
       </SliderBanner>
-      {/* <Tabs
-          defaultTab="tab1"
-          items={[
-            {
-              key: "tab1",
-              label: flashSaleGroup.label,
-              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
-                      <ListProduct key={flashSaleGroup.label} data={flashSaleGroup.data} />
-                    </div>,
-            },
-            {
-              key: "tab2",
-              label: topDealGroup.label,
-              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
-                      <ListProduct key={topDealGroup.label} data={topDealGroup.data} />
-                    </div>,
-            },
-            {
-              key: "tab3",
-              label: othersGroup.label,
-              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
-                      <ListProduct key={othersGroup.label} data={othersGroup.data} />
-                    </div>,
-            },
-          ]}
-      /> */}
       
       <div className='bg-white h-32 rounded-lg flex flex-row gap-5 justify-center pt-4 mt-3 mb-3'>
         <a className='flex flex-col items-center  text-sm font-medium gap-2 max-w-24'>
@@ -368,19 +363,19 @@ export default function Home() {
         </a>
       </div>
     
-      {/* <div className="mb-3 rounded-lg" style={{background: 'linear-gradient(rgba(255, 255, 255, 0) 22.49%, rgb(255, 255, 255) 73.49%), linear-gradient(264.03deg, rgb(220, 229, 251) -10.27%, rgb(234, 236, 255) 35.65%, rgb(213, 236, 253) 110.66%)'}}>
+      <div className="mb-3 rounded-lg" style={{background: 'linear-gradient(rgba(255, 255, 255, 0) 22.49%, rgb(255, 255, 255) 73.49%), linear-gradient(264.03deg, rgb(220, 229, 251) -10.27%, rgb(234, 236, 255) 35.65%, rgb(213, 236, 253) 110.66%)'}}>
         <div className="mb-4 mt-4 self-start font-semibold text-left">Thương hiệu nổi bật</div>
-        <ListBrand data={brands}/>
+        <ListBrand data={productProps_ListHotBrand}/>
       </div>
       <div className="mb-3 rounded-lg" style={{background: 'rgb(255, 255, 255)'}}>
         <div className="mb-4 mt-4 self-start font-semibold text-left flex items-center gap-2">
           <span>Flash Sale</span>
-          <Countdown seconds={100}/>
+          <Countdown seconds={1000}/>
         </div>
-        <ListBrand data={brands}>
+        <ListBrand data={productProps_ListFlashSale}>
           
           </ListBrand>
-      </div> */}
+      </div>
 
       
 
@@ -420,7 +415,32 @@ export default function Home() {
         <div className='p-2 border mt-10 px-20 self-center rounded-md text-blue-500 border-blue-500'>
           Xem Thêm
         </div>       
-        
+        <Tabs
+          defaultTab="tab1"
+          items={[
+            {
+              key: "tab1",
+              label: flashSaleGroup.label,
+              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
+                      <ListProduct key={flashSaleGroup.label} label={flashSaleGroup.label} data={flashSaleGroup.data} />
+                    </div>,
+            },
+            {
+              key: "tab2",
+              label: topDealGroup.label,
+              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
+                      <ListProduct key={topDealGroup.label} label={flashSaleGroup.label} data={topDealGroup.data} />
+                    </div>,
+            },
+            {
+              key: "tab3",
+              label: othersGroup.label,
+              children: <div className='flex flex-row flex-wrap gap-2 mt-2'>
+                      <ListProduct key={othersGroup.label} label={flashSaleGroup.label} data={othersGroup.data} />
+                    </div>,
+            },
+          ]}
+      />
       </div>
     </>
   );

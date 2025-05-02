@@ -1,20 +1,23 @@
 'use client';
 import { Suspense, useEffect, useState } from 'react';
-import products from '@/data/products.json';
 import { CardProduct } from '@/components/shared/CardProduct';
 import { getProductOrShop } from '@/services/Api';
 import { HitItem, PropsType_CardProduct } from '@/dto/tikiDto';
 import { BASE_URL } from '@/services/app';
+import { useSearchParams } from 'next/navigation';
 
 export default function Page(props: any) {
+  const searchParams = useSearchParams();//chạy trên môi trường PRODUCT
+  const title = searchParams.get('title');
+  const isTopDeal = searchParams.get('isTopDeal');
   const [productOrShop, setproductOrShop]=useState<HitItem[]>([]);
-  const {title} = props.searchParams;
-  const {isTopDeal} = props.searchParams || '';
+  // const { isTopDeal, title } = props.searchParams || {};//chạy trên môi trường DEV
   useEffect(()=>{
+    console.log("params:", { title, isTopDeal });
     getProductOrShop({
       params:{
         title,
-        isTopDeal
+        ...(isTopDeal ? { isTopDeal } : {})  // chỉ thêm nếu có
       }
     })
     .then(result=>{
@@ -54,6 +57,7 @@ const productProps: PropsType_CardProduct[] = productOrShop.map((item) => {
       }
     };
   });
+
   return (
     <>
       <nav>

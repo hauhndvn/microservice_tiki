@@ -601,7 +601,11 @@ productsCatIds.forEach((item: ProductItems) => {
         <div className="p-4 bg-white flex flex-col rounded-lg">
           <div className="flex flex-row gap-2">
             <Image src={mediaShop}
-            width={50} height={50} alt="Tiki" />
+            width={50} 
+            height={50} 
+            alt="Tiki" 
+            unoptimized
+            />
             <div>
               <span className="font-medium">{shopByID?.shop_name}</span>
               <div className="flex flex-row items-center gap-2">
