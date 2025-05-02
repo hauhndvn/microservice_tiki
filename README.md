@@ -16,16 +16,17 @@ Dự án Capstone cuối khoá Node Advanced 03 của Nguyễn Đức Hậu
   * Giao diện được chia làm 2 phần,
     + bên trái là một số danh mục cố định,
     + bên phải có:
-        _slider (quảng cáo các sự kiện khuyến mại, thương mại hot),
-        _trend nổi bật,
-        _brand thương hiệu nổi bật với đánh giá từ 4 sao trở lên, 
-        _brand Flash Sale với các sản phẩm đang giảm giá trên 25%.
-        _Gợi ý hôm nay: gồm các sản phẩm mới nhất
+        - slider (quảng cáo các sự kiện khuyến mại, thương mại hot),
+        - trend nổi bật,
+        - brand thương hiệu nổi bật với đánh giá từ 4 sao trở lên, 
+        - brand Flash Sale với các sản phẩm đang giảm giá trên 25%.
+        - Gợi ý hôm nay: gồm các sản phẩm mới nhất
   * Để tìm kiếm: bạn nhập một từ chứa tên sản phẩm, hoặc tên shop, rồi bấm nút tìm kiếm
   * Để mua hàng:
-    + chọn sản phẩm: bạn bấm vào sản phẩm cụ thể, bấm "thêm vào giỏ" (muốn mua bao nhiêu sản phẩm cũng được). Nếu bấm "mua hàng" thì coi như bạn đã chọn số lượng 01 cho sản phẩm. Hệ thống sẽ tự động chuyển sang trang mua hàng /cart.
-    + Đăng nhập tài khoản: nhập username/phone/email và mật khẩu
-    + tại trang mua hàng /cart: bạn có thể tăng/giảm số lượng, xoá sản phẩm
+    + chọn sản phẩm: bạn bấm vào sản phẩm cụ thể, bấm "thêm vào giỏ" (muốn mua bao nhiêu sản phẩm cũng được).
+    + Để mua hàng: có 2 cách. Cách 1 ở trang chi tiết sản phẩm bạn bấm "mua hàng" (hệ thống coi như bạn đã chọn số lượng 01 cho sản phẩm). Cách 2  bạn bấm vào biểu tượng giỏ hàng ở góc phải phía trên.
+    + Đăng nhập tài khoản: nhập username/phone/email và mật khẩu. Hệ thống sẽ tự động chuyển sang trang mua hàng /cart. 
+    + tại trang mua hàng /cart: bạn có thể tăng/giảm số lượng, xoá sản phẩm, xem tổng số tiền đã giảm, tổng tiền phải thanh toán.
     + bấm "mua hàng" bạn sẽ nhận được 02 thông báo qua email: "Đặt hàng qua Tiki" > "Xác nhận đơn hàng thành công" và "Giao hàng Tiki" > "Giao hàng thành công"
 
 
